@@ -17,7 +17,7 @@ type FirstLineSupport struct {
 	next Level
 }
 
-func (f *FirstLineSupport) execute (c *Client) {
+func (f *FirstLineSupport) execute(c *Client) {
 	if c.flDone {
 		fmt.Println("First Line Support has already helped the client")
 		f.next.execute(c)
@@ -36,7 +36,7 @@ type SecondLineSupport struct {
 	next Level
 }
 
-func (s *SecondLineSupport) execute (c *Client) {
+func (s *SecondLineSupport) execute(c *Client) {
 	if c.slDone {
 		fmt.Println("SecondLine Support has already helped the client")
 		s.next.execute(c)
@@ -52,28 +52,27 @@ func (d *SecondLineSupport) setNext(next Level) {
 }
 
 type Engineer struct {
-    next Level
+	next Level
 }
 
 func (e *Engineer) execute(c *Client) {
-    if c.engineerDone {
-        fmt.Println("Engineer has helped the client")
-    }
-    fmt.Println("Engineer helping the client")
-    c.engineerDone = true
+	if c.engineerDone {
+		fmt.Println("Engineer has helped the client")
+	}
+	fmt.Println("Engineer helping the client")
+	c.engineerDone = true
 }
 
 func (m *Engineer) setNext(next Level) {
-    m.next = next
+	m.next = next
 }
 
 type Client struct {
-	name string
-	flDone bool
-	slDone bool
+	name         string
+	flDone       bool
+	slDone       bool
 	engineerDone bool
 }
-
 
 func main() {
 	engineer := &Engineer{}

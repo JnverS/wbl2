@@ -20,7 +20,7 @@ type Device interface {
 }
 
 // отправитель
-type Button struct{
+type Button struct {
 	command Command
 }
 

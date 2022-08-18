@@ -21,16 +21,16 @@ type WalletFacade struct {
 func newWalletFacade(accountId string, code int) *WalletFacade {
 	fmt.Println("Starting create account")
 	walletFacade := &WalletFacade{
-		account: newAccount(accountId),
+		account:      newAccount(accountId),
 		securityCode: newSecurityCode(code),
-		wallet: newWallet(),
+		wallet:       newWallet(),
 	}
 	fmt.Println("Account created")
 	return walletFacade
 }
 
 // метод добавления в кошелек обращается к методам проверки акка, кода и добавляет
-func(w *WalletFacade) addMoneyToWallet(accountId string, securityCode int, amount int) error {
+func (w *WalletFacade) addMoneyToWallet(accountId string, securityCode int, amount int) error {
 	fmt.Println("Trying add money to wallet")
 	err := w.account.checkAccount(accountId)
 	if err != nil {
@@ -68,7 +68,7 @@ type Account struct {
 	accountId string
 }
 
-func newAccount(accountId string) *Account{
+func newAccount(accountId string) *Account {
 	return &Account{
 		accountId: accountId,
 	}

@@ -27,7 +27,7 @@ type Square struct {
 	side float64
 }
 
-func (s *Square) accept (v Visitor) {
+func (s *Square) accept(v Visitor) {
 	v.visitorForSquare(s)
 }
 
@@ -39,7 +39,7 @@ type Circle struct {
 	r float64
 }
 
-func (c *Circle) accept (v Visitor) {
+func (c *Circle) accept(v Visitor) {
 	v.visitForCircle(c)
 }
 

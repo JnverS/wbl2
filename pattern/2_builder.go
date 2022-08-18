@@ -30,7 +30,7 @@ func getBuilder(builderType string) IBuilder {
 
 // конкретный строитель для интел
 type IntelBuilder struct {
-	MB string
+	MB  string
 	Cpu string
 	Ram string
 }
@@ -38,6 +38,7 @@ type IntelBuilder struct {
 func newIntelBuilder() *IntelBuilder {
 	return &IntelBuilder{}
 }
+
 // реализация методов интерфейса
 func (i *IntelBuilder) setMotherboard() {
 	i.MB = "Asus"
@@ -52,8 +53,8 @@ func (i *IntelBuilder) setRAM() {
 }
 
 func (i *IntelBuilder) getPC() PC {
-	return PC {
-		MB: i.MB,
+	return PC{
+		MB:  i.MB,
 		Cpu: i.Cpu,
 		Ram: i.Ram,
 	}
@@ -61,7 +62,7 @@ func (i *IntelBuilder) getPC() PC {
 
 //конкретный строитель для амд
 type AMDBuilder struct {
-	MB string
+	MB  string
 	Cpu string
 	Ram string
 }
@@ -69,6 +70,7 @@ type AMDBuilder struct {
 func newAMDBuilder() *AMDBuilder {
 	return &AMDBuilder{}
 }
+
 // реализация методов интерфейса строителя
 func (a *AMDBuilder) setMotherboard() {
 	a.MB = "Gigabyte"
@@ -83,18 +85,20 @@ func (a *AMDBuilder) setRAM() {
 }
 
 func (a *AMDBuilder) getPC() PC {
-	return PC {
-		MB: a.MB,
+	return PC{
+		MB:  a.MB,
 		Cpu: a.Cpu,
 		Ram: a.Ram,
 	}
 }
+
 // струкрура нашго пк
 type PC struct {
-	MB string
+	MB  string
 	Cpu string
 	Ram string
 }
+
 // директор для управления строителями
 type Director struct {
 	builder IBuilder
@@ -105,6 +109,7 @@ func newDirector(b IBuilder) *Director {
 		builder: b,
 	}
 }
+
 // назначаем директору конкретного строителя
 func (d *Director) setBuilder(b IBuilder) {
 	d.builder = b

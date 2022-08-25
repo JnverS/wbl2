@@ -6,31 +6,30 @@ import (
 )
 
 
-func TestUnpackingSuccess(t *testing.T) {
+func TestSuccess(t *testing.T) {
 	testCases := map[string]string{
 		"a4bc2d5e":  "aaaabccddddde",
 		"abcd":      "abcd",
 		"":          "",
-/*		"qwe\\4\\5": "qwe45",
+		"qwe\\4\\5": "qwe45",
 		"qwe\\45":   "qwe44444",
-		"qwe\\\\5":  "qwe\\\\\\\\\\",*/
+		"qwe\\\\5":  "qwe\\\\\\\\\\",
 	}
 
-	for test, control := range testCases {
+	for test, expected := range testCases {
 		res, err := Unpacking(test)
 		if err != nil {
 			t.Error(err)
 		}
-		if res != control {
-			t.Errorf("test case (%s): control (%s) != result (%s)", test, control, res)
+		if res != expected {
+			t.Errorf("expected (%s) != result (%s)", expected, res)
 		}
 	}
 }
 
-func TestUnpackingError(t *testing.T) {
-	controlErr := errors.New("invalid string")
+func TestError(t *testing.T) {
 	unpacking, err := Unpacking("45")
-	if unpacking != "" && !errors.Is(err, controlErr) {
-		t.Errorf("control (\"\") != result (%s) or err %v != %v", unpacking, err, controlErr)
+	if unpacking != "" && !errors.Is(err, errors.New("Invalid string")) {
+		t.Errorf("expected (\"\") != result (%s) or err %v != %v", unpacking, err, errors.New("Invalid string"))
 	}
 }

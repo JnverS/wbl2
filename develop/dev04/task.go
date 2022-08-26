@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sort"
+	"strings"
 )
 
 /*
@@ -29,22 +30,58 @@ import (
 func FindAnagram(arr []string) *map[string][]string {
 	result := make(map[string][]string)
 
-
 	for _, w := range arr {
+		// приводим к нижнему регистру
+		w := strings.ToLower(w)
+		// преобразуем в рукны и сортируем
 		word := []rune(w)
+		unique := true
 		sort.Slice(word, func(i, j int) bool {
 			return word[i] < word[j]
 		})
-		
+		// проверем есть ли для этого слова подмножество
+		for key := range result {
+			tmp := []rune(key)
+			sort.Slice(tmp, func(i, j int) bool {
+				return tmp[i] < tmp[j]
+			})
+			if string(tmp) == string(word) {
+				result[key] = append(result[key], w)
+				unique = false
+				break
+			}
+		}
+		// если нет создаем
+		if unique {
+			result[w] = []string{w}
+		}
 	}
-
+	// удаляем дубликаты внути массива и множества из одного элемента
+	for key := range result {
+		result[key] = DelDuplicate(result[key])
+		if len(result[key]) == 1 {
+			delete(result, key)
+		}
+	}
+	// сортируем массивы
+	for _, v := range result {
+		sort.Strings(v)
+	}
 	return &result
 }
 
-// isDuplicate определяет дубликаты
-func isDuplicate(s1 string, s2 []string) bool {
+// DelDuplicate удаляет дубликаты
+func DelDuplicate(s1 []string) []string {
+	m := make(map[string]struct{})
+	var res []string
 
-	return false
+	for _, v := range s1 {
+		if _, ok := m[v]; !ok {
+			m[v] = struct{}{}
+			res = append(res, v)
+		}
+	}
+	return res
 }
 
 func main() {

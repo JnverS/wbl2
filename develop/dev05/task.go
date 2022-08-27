@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -16,7 +17,6 @@ import (
 
 	Реализовать утилиту фильтрации по аналогии с консольной утилитой
 	(man grep — смотрим описание и основные параметры).
-
 	Реализовать поддержку утилитой следующих ключей:
 ++	-A - "after" печатать +N строк после совпадения
 ++	-B - "before" печатать +N строк до совпадения
@@ -27,12 +27,15 @@ import (
 ++	-F - "fixed", точное совпадение со строкой, не паттерн
 ++	-n - "line num", напечатать номер строки
 */
-type flags struct {
-	A, B, C int
+
+// Flags структура для хранения флагов
+type Flags struct {
+	A, B, C       int
 	c, i, v, F, n bool
 	str, fileName string
 }
 
+// GrepFile функция grep
 func GrepFile() {
 	// парсим входящие данные
 	flags, err := ParseFlags()
@@ -45,22 +48,26 @@ func GrepFile() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if flags.i {
-
+	if flags.C > 0 {
+		flags.A = flags.C
+		flags.B = flags.C
 	}
 	// ищем совпадение строк
-	res, key := FindAllStrings(flags.str, file, *flags)
+	res, key := flags.FindAllStrings(file)
+
+	// если флаг с просто выводим количество найденных строк
 	if flags.c {
 		fmt.Println(len(res))
 		return
 	}
 	// печатаем получившиеся строки в консоль
-	PrintResult(res, key, *flags)
+	flags.PrintResult(res, key)
 }
 
-func PrintResult(res map[int]string, key []int, flags flags) {
+// PrintResult печатаем результат
+func (f *Flags) PrintResult(res map[int]string, key []int) {
 	for _, v := range key {
-		if flags.n {
+		if f.n {
 			fmt.Print(v, ":", res[v], "\n")
 		} else {
 			fmt.Println(res[v])
@@ -68,63 +75,58 @@ func PrintResult(res map[int]string, key []int, flags flags) {
 	}
 }
 
-func FindAllStrings(str string, file []string, flags flags) (map[int]string, []int) {
+//FindAllStrings ищем строчки
+func (f *Flags) FindAllStrings(file []string) (map[int]string, []int) {
 	result := make(map[int]string)
 	key := make([]int, 0)
-	NA, NB, NC := 0, 0, 0
+	write := false
 	for i, v := range file {
 		w := v
-		if flags.F {
-			if v == str {
-				result[i + 1] = v
-				key = append(key, i + 1)
-			}
-			break
-		}
-		if flags.i {
-			str = strings.ToLower(str)
+		if f.i {
 			w = strings.ToLower(w)
+			f.str = strings.ToLower(f.str)
 		}
-		if flags.v {
-			if !strings.Contains(w, str) {
-				result[i + 1] = v
-				key = append(key, i + 1)
+		if f.F {
+			if strings.Contains(w, f.str) {
+				result[i+1] = v
+				key = append(key, i+1)
+				write = true
 			}
 		} else {
-			if strings.Contains(w, str){
-				result[i + 1] = v
-				key = append(key, i + 1)
-				if flags.A != -1{
-					NA = flags.A
+			check, err := regexp.MatchString(f.str, w)
+			if err != nil {
+				log.Fatal(err)
+			}
+			if f.v {
+				if !check {
+					result[i+1] = v
+					key = append(key, i+1)
+					write = true
 				}
-				if flags.B != -1{
-					j := i
-					for NB = flags.B; NB > 0;NB--{
-						result[j] = file[j]
-						key = append(key, j)
-						j--
-					}
+			} else {
+				if check {
+					result[i+1] = v
+					key = append(key, i+1)
+					write = true
 				}
-				if flags.C != -1{
-					j := i
-					for NC = flags.C; NC > 0;NC--{
-						result[j] = file[j - 1]
-						key = append(key, j)
-						j--
-					}
-					j = i + 1
-					for NC = flags.C; NC > 0;NC--{
-						result[j + 1] = file[j]
-						key = append(key, j + 1)
+			}
+			// если нужно добавить строки до и после
+			if (f.B > 0 || f.A > 0) && write && !f.c {
+				j := i + 1
+				for n := f.A; n > 0; n-- {
+					if j < len(file) {
+						result[j+1] = file[j]
+						key = append(key, j+1)
 						j++
 					}
 				}
-			} else {
-				if NA != 0 {
-					result[i + 1] = v
-					key = append(key, i + 1)
-					NA--
+				j = i - 1
+				for n := f.B; n > 0; n-- {
+					result[j+1] = file[j]
+					key = append(key, j+1)
+					j--
 				}
+				write = false
 			}
 		}
 	}
@@ -132,7 +134,8 @@ func FindAllStrings(str string, file []string, flags flags) (map[int]string, []i
 	return result, key
 }
 
-func ReadFile(name string) ([]string, error){
+// ReadFile считываем файл
+func ReadFile(name string) ([]string, error) {
 	file, err := os.Open(name)
 	if err != nil {
 		return nil, err
@@ -147,7 +150,8 @@ func ReadFile(name string) ([]string, error){
 	return result, nil
 }
 
-func ParseFlags() (*flags, error) {
+// ParseFlags парсим флаги, которые нам пришли из cmd
+func ParseFlags() (*Flags, error) {
 	A := flag.Int("A", -1, "печатать +N строк после совпадения")
 	B := flag.Int("B", -1, "печатать +N строк до совпадения")
 	C := flag.Int("C", -1, "(A+B) печатать ±N строк вокруг совпадения")
@@ -162,7 +166,7 @@ func ParseFlags() (*flags, error) {
 	}
 	str := flag.Arg(0)
 	fileName := flag.Arg(1)
-	flags := flags{*A, *B, *C, *c, *i, *v, *F, *n, str, fileName}
+	flags := Flags{*A, *B, *C, *c, *i, *v, *F, *n, str, fileName}
 	return &flags, nil
 }
 

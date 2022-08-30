@@ -32,7 +32,7 @@ import (
 */
 
 func main() {
-	timeout := flag.Int("timeout", 60, "timeout connection")
+	timeout := flag.Int("timeout", 10, "timeout connection")
 	flag.Parse()
 	if len(flag.Args()) < 2 {
 		log.Fatalln("Enter port and host")
@@ -50,6 +50,7 @@ func main() {
 	}
 	defer conn.Close()
 
+	fmt.Println("Connect!")
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGQUIT)
 

@@ -9,7 +9,7 @@ import (
 
 func main() {
 	// начинаем слушать порт
-	listener, err := net.Listen("tcp", ":8080")
+	listener, err := net.Listen("tcp", ":8081")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -33,7 +33,7 @@ func handleConnection(conn net.Conn) {
 	for scanner.Scan() {
 		text := scanner.Text()
 		log.Println("reseived:", text)
-		n, err := conn.Write([]byte("answer: " + text))
+		n, err := conn.Write([]byte("Server: reseived data: " + text))
 		if err != nil || n == 0 {
 			log.Println("Write error:", err)
 			return
